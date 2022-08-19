@@ -16,7 +16,13 @@
 
 package com.sample.android.trivialdrivesample.ui;
 
+import static com.sample.android.trivialdrivesample.billing.BillingDataSourceKt.RC_ONE_STEP;
+
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -37,7 +43,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.sample.android.trivialdrivesample.BuildConfig;
 import com.sample.android.trivialdrivesample.MainActivityViewModel;
 import com.sample.android.trivialdrivesample.R;
 import com.sample.android.trivialdrivesample.TrivialDriveApplication;
@@ -83,15 +88,6 @@ public class MainActivity extends AppCompatActivity{
         });
         // Allows billing to refresh purchases during onResume
         getLifecycle().addObserver(mainActivityViewModel.getBillingLifecycleObserver());
-
-        // A helpful hint to prevent confusion when billing transactions silently fail
-        if ( BuildConfig.BASE64_ENCODED_PUBLIC_KEY.equals("null")) {
-            if ( getSupportFragmentManager()
-                    .findFragmentByTag(PublicKeyNotSetDialog.DIALOG_TAG) == null ) {
-                new PublicKeyNotSetDialog()
-                        .show(getSupportFragmentManager(), PublicKeyNotSetDialog.DIALOG_TAG);
-            }
-        }
     }
 
     @Override
@@ -126,6 +122,18 @@ public class MainActivity extends AppCompatActivity{
                             (dialog, which) -> {
                             })
                     .create();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_ONE_STEP) {
+            if (data == null || data.getExtras() == null) {
+                return;
+            }
+            String transactionHash = data.getStringExtra("transaction_hash");
+            Log.d("testing", transactionHash);
         }
     }
 }

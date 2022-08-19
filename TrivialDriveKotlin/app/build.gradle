@@ -26,8 +26,8 @@ android {
         applicationId 'com.sample.android.trivialdrivesample'
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 8
-        versionName "1.5"
+        versionCode 1
+        versionName "1.0"
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments += ["room.schemaLocation":

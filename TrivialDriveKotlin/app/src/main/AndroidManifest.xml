@@ -36,4 +36,7 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+    <queries>
+        <package android:name="com.appcoins.wallet.dev" />
+    </queries>
 </manifest>
