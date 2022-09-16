@@ -16,11 +16,21 @@
 
 package com.sample.android.trivialdrivesample
 
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.asLiveData
+import android.util.Log
+import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 
 /*
    This is used for any business logic, as well as to echo LiveData from the BillingRepository.
@@ -32,6 +42,50 @@ class MainActivityViewModel(private val tdr: TrivialDriveRepository) : ViewModel
 
     fun debugConsumePremium() {
         tdr.debugConsumePremium()
+    }
+
+    fun consumePurchase(transactionHash: String) {
+        viewModelScope.launch {
+            try {
+                val client = OkHttpClient().newBuilder()
+                        .build()
+                val request: Request = Request.Builder()
+                        .url("https://api.dev.catappult.io/broker/8.20220916/transactions?hash=$transactionHash")
+                        .method("GET", null)
+                        .build()
+                try {
+                    val sku = withContext(Dispatchers.IO) {
+                        var nrTries = 0;
+                        do {
+                            val response = client.newCall(request).execute()
+                            if (response.code === 200) {
+                                val bodyAsJson = JSONObject(response.body?.string())
+                                val items = bodyAsJson["items"] as JSONArray
+                                val item = items[0] as JSONObject
+                                val status = item["status"] as String
+                                if (status == "COMPLETED") {
+                                    return@withContext item["product"] as String
+                                }
+                            }
+                            nrTries++;
+                            delay(500);
+                        } while (nrTries < 10);
+
+                        return@withContext null
+                    }
+
+                    if (sku != null) {
+                        tdr.consumePurchase(sku)
+                    }
+                } catch (e: SocketTimeoutException) {
+                    e.printStackTrace()
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     val billingLifecycleObserver: LifecycleObserver

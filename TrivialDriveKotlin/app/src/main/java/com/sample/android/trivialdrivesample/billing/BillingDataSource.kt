@@ -186,6 +186,12 @@ class BillingDataSource private constructor(
         else false
     }
 
+    fun consumePurchaseOSP(sku: String) {
+        defaultScope.launch {
+            purchaseConsumedFlow.emit(listOf(sku))
+        }
+    }
+
     override fun onBillingSetupFinished(billingResult: BillingResult) {
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage

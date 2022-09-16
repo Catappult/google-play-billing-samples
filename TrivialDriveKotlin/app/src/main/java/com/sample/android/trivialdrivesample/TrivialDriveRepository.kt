@@ -203,6 +203,10 @@ class TrivialDriveRepository(
         }
     }
 
+    fun consumePurchase(sku: String) {
+        billingDataSource.consumePurchaseOSP(sku)
+    }
+
     companion object {
         // Source for all constants
         const val GAS_TANK_MIN = 0

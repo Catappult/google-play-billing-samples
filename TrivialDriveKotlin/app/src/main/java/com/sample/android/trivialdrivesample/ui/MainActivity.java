@@ -129,11 +129,12 @@ public class MainActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_ONE_STEP) {
-            if (data == null || data.getExtras() == null) {
+            if (data == null || data.getExtras() == null || data.getStringExtra("transaction_hash") == null) {
                 return;
             }
+
             String transactionHash = data.getStringExtra("transaction_hash");
-            Log.d("testing", transactionHash);
+            mainActivityViewModel.consumePurchase(transactionHash);
         }
     }
 }
