@@ -203,8 +203,8 @@ class TrivialDriveRepository(
         }
     }
 
-    fun consumePurchase(sku: String) {
-        billingDataSource.consumePurchaseOSP(sku)
+    fun consumePurchaseForOneStepPayment() {
+        billingDataSource.consumePurchaseForOneStepPayment()
     }
 
     companion object {

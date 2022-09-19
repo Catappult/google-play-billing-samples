@@ -44,48 +44,8 @@ class MainActivityViewModel(private val tdr: TrivialDriveRepository) : ViewModel
         tdr.debugConsumePremium()
     }
 
-    fun consumePurchase(transactionHash: String) {
-        viewModelScope.launch {
-            try {
-                val client = OkHttpClient().newBuilder()
-                        .build()
-                val request: Request = Request.Builder()
-                        .url("https://api.dev.catappult.io/broker/8.20220916/transactions?hash=$transactionHash")
-                        .method("GET", null)
-                        .build()
-                try {
-                    val sku = withContext(Dispatchers.IO) {
-                        var nrTries = 0;
-                        do {
-                            val response = client.newCall(request).execute()
-                            if (response.code === 200) {
-                                val bodyAsJson = JSONObject(response.body?.string())
-                                val items = bodyAsJson["items"] as JSONArray
-                                val item = items[0] as JSONObject
-                                val status = item["status"] as String
-                                if (status == "COMPLETED") {
-                                    return@withContext item["product"] as String
-                                }
-                            }
-                            nrTries++;
-                            delay(500);
-                        } while (nrTries < 10);
-
-                        return@withContext null
-                    }
-
-                    if (sku != null) {
-                        tdr.consumePurchase(sku)
-                    }
-                } catch (e: SocketTimeoutException) {
-                    e.printStackTrace()
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
+    fun consumePurchaseForOneStepPayment() {
+        tdr.consumePurchaseForOneStepPayment();
     }
 
     val billingLifecycleObserver: LifecycleObserver

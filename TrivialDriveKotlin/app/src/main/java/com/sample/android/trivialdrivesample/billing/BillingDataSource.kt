@@ -140,6 +140,7 @@ class BillingDataSource private constructor(
     private val DOMAIN = "com.sample.android.trivialdrivesample"
     private val WALLET_DOMAIN = "com.appcoins.wallet.dev"
     private val HOSTNAME = "apichain.dev.catappult.io"
+    private var SKU_NAME = "";
 
     /**
      * This method creates the One Step URL to perform the payment
@@ -186,9 +187,9 @@ class BillingDataSource private constructor(
         else false
     }
 
-    fun consumePurchaseOSP(sku: String) {
+    fun consumePurchaseForOneStepPayment() {
         defaultScope.launch {
-            purchaseConsumedFlow.emit(listOf(sku))
+            purchaseConsumedFlow.emit(listOf(SKU_NAME))
         }
     }
 
@@ -693,6 +694,7 @@ class BillingDataSource private constructor(
     fun launchBillingFlow(activity: Activity?, sku: String, vararg upgradeSkusVarargs: String) {
         defaultScope.launch {
             if (activity != null) {
+                SKU_NAME = sku
                 startOneStepPayment(activity, createURL(1f, "USD", sku))
             }
         }
